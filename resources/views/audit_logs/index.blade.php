@@ -25,7 +25,7 @@
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach($logs as $log)
                                 <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm">{{ $log->created_at->format('d/m/Y H:i') }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">{{ $log->created_at->translatedFormat('d F Y H:i') }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">{{ $log->user->name ?? 'System' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm">
                                         @if($log->action === 'created')
