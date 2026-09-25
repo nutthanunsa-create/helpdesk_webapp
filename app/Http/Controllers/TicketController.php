@@ -169,7 +169,7 @@ class TicketController extends Controller
         $ticket = HelpdeskCase::findOrFail($id);
 
         // Allow manager to 'close' (review) and allow IT team to submit 'preventive_action' even if closed
-        if ($ticket->status === 'closed' && !($request->action === 'close' && Auth::user()->role === 'manager') && $request->action !== 'preventive_action') {
+        if ($ticket->status === 'closed' && !($request->action === 'close' && Auth::user()->role === 'manager') && !in_array($request->action, ['preventive_action', 'close_preventive_measure'])) {
             return redirect()->back()->withErrors('ไม่สามารถดำเนินการได้ เนื่องจากใบงานถูกปิดแล้ว');
         }
 
