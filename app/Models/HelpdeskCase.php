@@ -42,6 +42,8 @@ class HelpdeskCase extends Model
         'preventive_measure',
         'preventive_measure_specific',
         'preventive_measure_systemic',
+        'preventive_measure_specific_due_date',
+        'preventive_measure_systemic_due_date',
         'sla_due_at',
         'analyzing_at',
         'in_progress_at',
@@ -60,6 +62,12 @@ class HelpdeskCase extends Model
         'cancellation_reason',
         'rating',
         'feedback',
+        'pcar_opened_at',
+        'pcar_opened_by',
+        'pcar_analyzed_at',
+        'pcar_analyzed_by',
+        'pcar_closed_at',
+        'pcar_closed_by',
     ];
 
     /**
@@ -79,7 +87,42 @@ class HelpdeskCase extends Model
             'cancelled_at' => 'datetime',
             'requires_preventive_measure' => 'boolean',
             'analysis_notes' => 'array',
+            'pcar_opened_at' => 'datetime',
+            'pcar_analyzed_at' => 'datetime',
+            'pcar_closed_at' => 'datetime',
+            'preventive_measure_specific_due_date' => 'date',
+            'preventive_measure_systemic_due_date' => 'date',
         ];
+    }
+
+    public function getPreventiveMeasureSpecificAttribute($value)
+    {
+        if (empty($value)) return [];
+        $decoded = json_decode($value, true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+            return $decoded;
+        }
+        return [['detail' => $value, 'due_date' => optional($this->preventive_measure_specific_due_date)->format('Y-m-d')]];
+    }
+
+    public function setPreventiveMeasureSpecificAttribute($value)
+    {
+        $this->attributes['preventive_measure_specific'] = is_array($value) ? json_encode(array_values($value), JSON_UNESCAPED_UNICODE) : $value;
+    }
+
+    public function getPreventiveMeasureSystemicAttribute($value)
+    {
+        if (empty($value)) return [];
+        $decoded = json_decode($value, true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+            return $decoded;
+        }
+        return [['detail' => $value, 'due_date' => optional($this->preventive_measure_systemic_due_date)->format('Y-m-d')]];
+    }
+
+    public function setPreventiveMeasureSystemicAttribute($value)
+    {
+        $this->attributes['preventive_measure_systemic'] = is_array($value) ? json_encode(array_values($value), JSON_UNESCAPED_UNICODE) : $value;
     }
 
     public function user()
@@ -115,6 +158,21 @@ class HelpdeskCase extends Model
     public function cancelledBy()
     {
         return $this->belongsTo(User::class, 'cancelled_by');
+    }
+
+    public function pcarOpenedBy()
+    {
+        return $this->belongsTo(User::class, 'pcar_opened_by');
+    }
+
+    public function pcarAnalyzedBy()
+    {
+        return $this->belongsTo(User::class, 'pcar_analyzed_by');
+    }
+
+    public function pcarClosedBy()
+    {
+        return $this->belongsTo(User::class, 'pcar_closed_by');
     }
 
     public function comments()
