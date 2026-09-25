@@ -170,22 +170,50 @@
 
 
                 <!-- Completed Cases (Closed + Cancelled) -->
-                <a href="?status=completed#tickets-table" class="glass-card rounded-2xl p-4 relative overflow-hidden flex flex-col justify-between border-2 border-gray-300 hover:border-gray-400">
-                    <div class="absolute right-0 top-0 w-24 h-24 bg-gray-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 translate-x-8 -translate-y-8"></div>
-                    <p class="text-sm font-bold text-gray-800 mb-2 leading-tight">แก้ไขเสร็จ / ปิดใบงาน</p>
-                    <div class="flex items-end justify-between mt-auto">
-                        <div class="flex items-baseline flex-wrap gap-2">
-                            <span class="text-4xl font-black text-gray-700 leading-none drop-shadow-sm">{{ number_format($stats['completed']) }}</span>
-                            <span class="text-sm font-bold text-gray-400 bg-white/60 px-2 rounded-md">{{ $stats['percent_completed'] }}%</span>
-                            <div class="flex items-center gap-1 text-[11px] font-semibold ml-1">
-                                <span class="px-1.5 py-0.5 rounded bg-white/60 text-emerald-700 border border-emerald-200" title="ปิดงาน">✅ {{ number_format($stats['closed']) }}</span>
-                                <span class="px-1.5 py-0.5 rounded bg-white/60 text-red-700 border border-red-200" title="ยกเลิก">❌ {{ number_format($stats['cancelled']) }}</span>
+                <a href="?status=completed#tickets-table" class="glass-card rounded-2xl p-4 relative overflow-hidden flex flex-col justify-between border-2 border-emerald-200 hover:border-emerald-300 hover:shadow-lg transition-all duration-300">
+                    <!-- Decorative Background Blob -->
+                    <div class="absolute right-0 top-0 w-32 h-32 bg-emerald-200 rounded-full mix-blend-multiply filter blur-2xl opacity-60 translate-x-8 -translate-y-8"></div>
+                    
+                    <div class="flex items-center justify-between border-b border-emerald-200/60 pb-2 mb-3 relative z-10">
+                        <p class="text-sm font-bold text-emerald-800 leading-tight">แก้ไขเสร็จ / ปิดใบงาน</p>
+                    </div>
+                    
+                    <!-- Grid layout matching the wireframe structure but styled premium -->
+                    <div class="grid grid-cols-12 gap-2 items-stretch mt-auto h-full relative z-10">
+                        
+                        <!-- Col 1: Big Number -->
+                        <div class="col-span-4 flex items-center justify-center border-r border-emerald-200/60 pr-2">
+                            <span class="text-5xl font-black text-emerald-600 leading-none drop-shadow-sm">{{ number_format($stats['completed']) }}</span>
+                        </div>
+                        
+                        <!-- Col 2: Percentage -->
+                        <div class="col-span-3 flex items-center justify-center border-r border-emerald-200/60 px-2">
+                            <div class="bg-white/60 px-2 py-1 rounded-lg border border-emerald-100 shadow-sm">
+                                <span class="text-sm font-black text-emerald-700">{{ $stats['percent_completed'] }}%</span>
                             </div>
                         </div>
-                        <!-- Check Circle Icon -->
-                        <svg class="w-7 h-7 text-emerald-500 opacity-80 shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
+                        
+                        <!-- Col 3: Breakdown (Closed / Cancelled) -->
+                        <div class="col-span-3 flex flex-col justify-center space-y-2 border-r border-emerald-200/60 px-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-bold text-emerald-700">ปิดงาน</span>
+                                <span class="text-sm font-black text-emerald-800 bg-emerald-100/80 px-1.5 rounded">{{ number_format($stats['closed']) }}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-bold text-red-600">ยกเลิก</span>
+                                <span class="text-sm font-black text-red-700 bg-red-100/80 px-1.5 rounded">{{ number_format($stats['cancelled']) }}</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Col 4: Icon -->
+                        <div class="col-span-2 flex justify-center items-center pl-1">
+                            <div class="bg-gradient-to-br from-emerald-100 to-emerald-200 p-2 rounded-xl shadow-sm border border-white/50">
+                                <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        
                     </div>
                 </a>
             </div>
