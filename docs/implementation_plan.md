@@ -3,7 +3,7 @@
 เอกสารนี้ใช้สำหรับติดตามแผนการพัฒนาฟีเจอร์ต่างๆ ของระบบ ITDeskService
 
 ## Phase 1: Core Ticketing System, DB Structure & UI (✅ ดำเนินการแล้ว)
-- [x] **ปรับปรุง Data Model (Database Migration):** อัปเดตตาราง `HelpdeskCase` ให้รองรับโครงสร้างจาก P-CAR Form 4 แบบครบถ้วน ได้แก่ Triage (Assign/Escalate), SLA Tracking, Root Cause (4M1E), และ Preventive Measure (อ้างอิงฟิลด์จาก `er_diagram.md`)
+- [x] **ปรับปรุง Data Model (Database Migration):** อัปเดตตาราง `HelpdeskCase` ให้รองรับโครงสร้างจาก P-CAR Form 4 แบบครบถ้วน ได้แก่ Triage (Assign/Escalate), SLA Tracking, Root Cause (P-CAR), และ Preventive Measure (อ้างอิงฟิลด์จาก `er_diagram.md`)
 - [x] สร้างหน้า Dashboard พื้นฐานสำหรับเจ้าหน้าที่ไอที พร้อมสถิติ KPI เบื้องต้น
 - [x] ปรับปรุง UI ให้มีความ Premium โดยใช้ Glassmorphism, Background Gradients และ Hover Animations
 - [x] สร้างระบบกรองข้อมูล (Filters) ค้นหาจากสถานะ, ความเร่งด่วน, แผนก, และหมวดหมู่
@@ -90,10 +90,10 @@
 ## Phase 5: API, Integration & Root Cause Analysis (✅ ดำเนินการแล้วบางส่วน)
 - [ ] สร้าง REST API เพื่อให้ระบบภายนอก (เช่น Line OA, MS Teams) สามารถเปิดเคสได้โดยตรง
 - [x] สร้างระบบ **สรุปปัญหาและมาตรการป้องกัน (Post-Mortem & Preventive Action - Task 2):**
-  - [x] เพิ่มฟอร์มให้ทีม IT ระบุสาเหตุรากเหง้าตามหมวดหมู่ 4M1E (คน, เครื่องจักร, วัสดุ, วิธีการ, สิ่งแวดล้อม) ในรูปแบบตารางที่ใช้งานง่าย 
+  - [x] เพิ่มฟอร์มให้ทีม IT ระบุสาเหตุรากเหง้าตามหมวดหมู่ P-CAR (คน, เครื่องจักร, วัสดุ, วิธีการ, สิ่งแวดล้อม) ในรูปแบบตารางที่ใช้งานง่าย 
   - [x] เพิ่มฟิลด์การวิเคราะห์แบบ "ทำไม" 3 ระดับ (Why-Why Analysis)
   - [x] เพิ่มฟิลด์ระบุ "มาตรการป้องกัน (Preventive Measure)" แบ่งเป็นเฉพาะกรณีและทั้งระบบ
-- [ ] พัฒนาระบบรายงานสถิติ (Reports) แบบรายเดือน สำหรับหัวหน้างาน โดยนำข้อมูลสาเหตุ 4M1E มาจัดทำกราฟวิเคราะห์
+- [ ] พัฒนาระบบรายงานสถิติ (Reports) แบบรายเดือน สำหรับหัวหน้างาน โดยนำข้อมูลสาเหตุ P-CAR มาจัดทำกราฟวิเคราะห์
 
 ## User UX/UI Enhancements (Phase 1 & 2: ✅ ดำเนินการแล้ว)
 - [x] **การโต้ตอบและการให้คะแนน (Communication & CSAT)**
