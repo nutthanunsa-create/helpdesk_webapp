@@ -1,0 +1,62 @@
+<?php
+
+use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', function () {
+    return redirect()->route('login');
+});
+
+use App\Http\Controllers\Api\LineLiffController;
+use App\Http\Controllers\Api\LineWebhookController;
+use App\Http\Controllers\AuditLogController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NormalUserController;
+use App\Http\Controllers\SettingController;
+use App\Http\Controllers\SlaController;
+use App\Http\Controllers\TicketCommentController;
+use App\Http\Controllers\TicketController;
+use App\Http\Controllers\UserManagementController;
+
+Route::post('/api/line/webhook', [LineWebhookController::class, 'handle']);
+
+Route::get('/line/link-account', [LineLiffController::class, 'showLoginForm']);
+Route::post('/line/link-account', [LineLiffController::class, 'linkAccount']);
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Ticket Routes
+    Route::get('/tickets/create', [TicketController::class, 'create'])->name('tickets.create');
+    Route::post('/tickets', [TicketController::class, 'store'])->name('tickets.store');
+    Route::get('/tickets/{id}', [TicketController::class, 'show'])->name('tickets.show');
+    Route::put('/tickets/{id}/assign', [TicketController::class, 'assign'])->name('tickets.assign');
+    Route::put('/tickets/{id}/status', [TicketController::class, 'updateStatus'])->name('tickets.updateStatus');
+
+    // Ticket Comments Route
+    Route::post('/tickets/{id}/comments', [TicketCommentController::class, 'store'])->name('tickets.comments.store');
+
+    // SLA Management
+    Route::get('/slas', [SlaController::class, 'index'])->name('slas.index');
+    Route::put('/slas', [SlaController::class, 'update'])->name('slas.update');
+
+    // User Management
+    Route::resource('users', UserManagementController::class)->except(['show']);
+    Route::resource('normal_users', NormalUserController::class)->except(['show']);
+    Route::resource('categories', CategoryController::class)->except(['show']);
+    Route::resource('companies', CompanyController::class)->except(['show']);
+
+    Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
+    Route::post('settings', [SettingController::class, 'update'])->name('settings.update');
+
+    Route::get('audit_logs', [AuditLogController::class, 'index'])->name('audit_logs.index');
+});
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__.'/auth.php';

@@ -1,0 +1,102 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Company;
+use App\Models\Sla;
+use Illuminate\Http\Request;
+
+class CompanyController extends Controller
+{
+    private function authorizeAdministrator()
+    {
+        if (! request()->user() || request()->user()->role !== 'administrator') {
+            abort(403, 'Unauthorized action.');
+        }
+    }
+
+    public function index()
+    {
+        $this->authorizeAdministrator();
+        $companies = Company::orderBy('name')->get();
+
+        return view('companies.index', compact('companies'));
+    }
+
+    public function create()
+    {
+        $this->authorizeAdministrator();
+
+        return view('companies.create');
+    }
+
+    public function store(Request $request)
+    {
+        $this->authorizeAdministrator();
+        $request->validate([
+            'name' => 'required|string|max:255|unique:companies,name',
+            'short_name' => 'nullable|string|max:50',
+            'is_active' => 'boolean',
+        ]);
+
+        $company = Company::create([
+            'name' => $request->name,
+            'short_name' => $request->short_name,
+            'is_active' => $request->has('is_active'),
+        ]);
+
+        // Create default SLAs for the new company
+        $priorities = ['urgent', 'high', 'normal', 'low'];
+        foreach ($priorities as $priority) {
+            Sla::create([
+                'company' => $company->name,
+                'priority' => $priority,
+                'hours' => 24,
+            ]);
+        }
+
+        return redirect()->route('companies.index')->with('success', 'เพิ่มบริษัทสำเร็จและสร้าง SLA เริ่มต้นเรียบร้อยแล้ว');
+    }
+
+    public function edit(Company $company)
+    {
+        $this->authorizeAdministrator();
+
+        return view('companies.edit', compact('company'));
+    }
+
+    public function update(Request $request, Company $company)
+    {
+        $this->authorizeAdministrator();
+        $request->validate([
+            'name' => 'required|string|max:255|unique:companies,name,'.$company->id,
+            'short_name' => 'nullable|string|max:50',
+            'is_active' => 'boolean',
+        ]);
+
+        $oldName = $company->name;
+        $newName = $request->name;
+
+        $company->update([
+            'name' => $newName,
+            'short_name' => $request->short_name,
+            'is_active' => $request->has('is_active'),
+        ]);
+
+        // Update related SLAs if the name changed
+        if ($oldName !== $newName) {
+            Sla::where('company', $oldName)->update(['company' => $newName]);
+        }
+
+        return redirect()->route('companies.index')->with('success', 'อัปเดตบริษัทสำเร็จ');
+    }
+
+    public function destroy(Company $company)
+    {
+        $this->authorizeAdministrator();
+        Sla::where('company', $company->name)->delete();
+        $company->delete();
+
+        return redirect()->route('companies.index')->with('success', 'ลบบริษัทและ SLA ที่เกี่ยวข้องสำเร็จ');
+    }
+}

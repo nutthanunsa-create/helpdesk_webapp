@@ -1,0 +1,136 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\HelpdeskCase;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class HelpdeskDashboardTest extends TestCase
+{
+    use RefreshDatabase;
+
+    /**
+     * Test that the Helpdesk dashboard page renders successfully with case listings.
+     */
+    public function test_dashboard_page_renders_successfully(): void
+    {
+        $user = User::factory()->create(['role' => 'helpdesk']);
+        $this->actingAs($user);
+
+        HelpdeskCase::create([
+            'ticket_no' => 'ITD-2026-999',
+            'title' => 'ทดสอบเคสแจ้งซ่อมจอภาพ',
+            'description' => 'รายละเอียดการทดสอบ',
+            'category' => 'Hardware',
+            'priority' => 'high',
+            'status' => 'pending',
+            'requester_name' => 'ทดสอบ สมมติ',
+            'department' => 'ฝ่ายทดสอบ',
+            'requester_phone' => '080-000-0000',
+            'location' => 'Test Location',
+        ]);
+
+        $response = $this->get(route('dashboard'));
+
+        $response->assertStatus(200);
+        $response->assertSee('ITDeskService');
+        $response->assertSee('ITD-2026-999');
+        $response->assertSee('ทดสอบเคสแจ้งซ่อมจอภาพ');
+    }
+
+    /**
+     * Test creating a new helpdesk case via form submission.
+     */
+    public function test_new_case_can_be_created(): void
+    {
+        $user = User::factory()->create(['role' => 'user', 'department' => 'IT']);
+        $this->actingAs($user);
+
+        $payload = [
+            'title' => 'ปัญหาต่อ VPN ไม่ได้',
+            'category' => 'Network',
+            'priority' => 'urgent',
+            'requester_name' => 'สมชาย มั่นคง',
+            'requester_phone' => '081-234-5678',
+            'requester_email' => 'somchai@company.co.th',
+            'department' => 'ฝ่ายการตลาด',
+            'location' => 'อาคาร 2 ชั้น 3',
+            'description' => 'VPN ฟ้อง Authentication Failed เมื่อเชื่อมต่อจากที่บ้าน',
+        ];
+
+        $response = $this->post(route('tickets.store'), $payload);
+
+        $response->assertRedirect(route('dashboard'));
+        $this->assertDatabaseHas('helpdesk_cases', [
+            'title' => 'ปัญหาต่อ VPN ไม่ได้',
+            'requester_name' => 'สมชาย มั่นคง',
+            'status' => 'pending',
+        ]);
+    }
+
+    /**
+     * Test updating a case status and assigning a technician.
+     */
+    public function test_case_status_can_be_updated_to_resolved(): void
+    {
+        $user = User::factory()->create(['role' => 'helpdesk', 'department' => 'IT']);
+        $this->actingAs($user);
+
+        $case = HelpdeskCase::create([
+            'ticket_no' => 'ITD-2026-050',
+            'title' => 'เมาส์เสีย',
+            'description' => 'คลิกซ้ายไม่ติด',
+            'category' => 'Hardware',
+            'priority' => 'low',
+            'status' => 'in_progress',
+            'requester_name' => 'กานดา สดใส',
+            'department' => 'ฝ่ายบุคคล',
+            'requester_phone' => '080-000-0000',
+            'location' => 'Test Location',
+        ]);
+
+        $response = $this->put(route('tickets.updateStatus', $case->id), [
+            'status' => 'resolved',
+            'action' => 'resolve',
+            'resolution_notes' => 'เปลี่ยนเมาส์สำรองให้เรียบร้อยแล้ว',
+        ]);
+
+        $response->assertRedirect(route('tickets.show', $case->id));
+        $case->refresh();
+
+        $this->assertSame('resolved', $case->status);
+        $this->assertSame('เปลี่ยนเมาส์สำรองให้เรียบร้อยแล้ว', $case->resolution_notes);
+    }
+
+    /**
+     * Test that the case detail page renders successfully.
+     */
+    public function test_case_detail_page_renders_successfully(): void
+    {
+        $user = User::factory()->create(['role' => 'helpdesk']);
+        $this->actingAs($user);
+
+        $case = HelpdeskCase::create([
+            'ticket_no' => 'ITD-2026-100',
+            'title' => 'โปรเจกเตอร์ภาพไม่ออก',
+            'description' => 'กดเปิดแล้วไฟติดแต่ภาพไม่ขึ้นจอ',
+            'category' => 'Hardware',
+            'priority' => 'high',
+            'status' => 'pending',
+            'requester_name' => 'วรรณา ทดสอบ',
+            'department' => 'ฝ่ายวิจัย',
+            'location' => 'ห้องประชุม 5A',
+            'requester_phone' => '080-000-0000',
+        ]);
+
+        $response = $this->get(route('tickets.show', $case->id));
+
+        $response->assertStatus(200);
+        $response->assertSee('ITD-2026-100');
+        $response->assertSee('โปรเจกเตอร์ภาพไม่ออก');
+        $response->assertSee('วรรณา ทดสอบ');
+        $response->assertSee('ห้องประชุม 5A');
+    }
+}
