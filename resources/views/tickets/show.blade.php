@@ -363,7 +363,7 @@
                                         <option value="team_network" {{ $ticket->escalated_to_team === 'team_network' ? 'selected' : '' }}>ช่างเครือข่าย (Network Team)</option>
                                         <option value="team_software" {{ $ticket->escalated_to_team === 'team_software' ? 'selected' : '' }}>ช่างซอฟต์แวร์ (Software Team)</option>
                                     </select>
-                                    <p class="text-xs text-gray-500 mt-1">ใบงานนี้จะถูกส่งไปยัง Dashboard ของทีมที่เลือก เพื่อให้ดำเนินการวิเคราะห์ 4M1E ต่อไป</p>
+                                    <p class="text-xs text-gray-500 mt-1">ใบงานนี้จะถูกส่งไปยัง Dashboard ของทีมที่เลือก เพื่อให้ดำเนินการวิเคราะห์ P-CAR ต่อไป</p>
                                 </div>
                             </div>
                             
@@ -389,6 +389,7 @@
                             @method('PUT')
                             <input type="hidden" name="action" value="preventive_action">
                             
+                            <fieldset @if($ticket->preventive_measure === 'done' || str_contains(Auth::user()->role, 'manager')) disabled @endif>
                             <div class="space-y-6">
                                 <!-- 1. วิเคราะห์หาสาเหตุรากเหง้า -->
                                 <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
@@ -436,20 +437,60 @@
                                     
                                     <div class="space-y-4 ml-2">
                                         <!-- 3.1 มาตรการป้องกันเฉพาะกรณี -->
-                                        <div>
-                                            <label class="block font-bold text-gray-700 text-sm mb-1">3.1 มาตรการป้องกัน เฉพาะกรณี (Specific Preventive Measure)</label>
-                                            <textarea name="preventive_measure_specific" rows="2" class="block w-full border-gray-300 focus:border-teal-500 focus:ring-teal-500 rounded-md shadow-sm" placeholder="ระบุวิธีป้องกันสำหรับเคสนี้โดยเฉพาะ...">{{ $ticket->preventive_measure_specific }}</textarea>
+                                        <div x-data="{ 
+                                            measures: {{ empty($ticket->preventive_measure_specific) ? json_encode([['detail' => '', 'due_date' => '']]) : json_encode($ticket->preventive_measure_specific) }}
+                                        }">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <label class="font-bold text-gray-700 text-sm">3.1 มาตรการป้องกัน เฉพาะกรณี (Specific Preventive Measure)</label>
+                                                @if($ticket->preventive_measure !== 'done' && !str_contains(Auth::user()->role, 'manager'))
+                                                    <button type="button" @click="measures.push({detail: '', due_date: ''})" class="text-xs bg-teal-50 text-teal-600 border border-teal-200 hover:bg-teal-100 rounded px-2 py-1 transition">+ เพิ่มข้อ</button>
+                                                @endif
+                                            </div>
+                                            <template x-for="(measure, index) in measures" :key="index">
+                                                <div class="mb-3 p-3 bg-white border border-gray-200 rounded relative shadow-sm">
+                                                    <textarea x-bind:name="`preventive_measure_specific[${index}][detail]`" x-model="measure.detail" rows="2" class="block w-full border-gray-300 focus:border-teal-500 focus:ring-teal-500 rounded-md shadow-sm mb-2 text-sm" placeholder="ระบุวิธีป้องกันสำหรับเคสนี้โดยเฉพาะ..."></textarea>
+                                                    <div class="flex items-center justify-between">
+                                                        <div class="flex items-center gap-2">
+                                                            <label class="text-xs text-gray-600">วันกำหนดเสร็จ:</label>
+                                                            <input type="date" x-bind:name="`preventive_measure_specific[${index}][due_date]`" x-model="measure.due_date" class="border-gray-300 focus:border-teal-500 focus:ring-teal-500 rounded-md shadow-sm text-xs p-1">
+                                                        </div>
+                                                        @if($ticket->preventive_measure !== 'done' && !str_contains(Auth::user()->role, 'manager'))
+                                                            <button type="button" @click="measures.splice(index, 1)" x-show="measures.length > 1" class="text-xs text-red-500 hover:text-red-700 hover:underline">ลบออก</button>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </template>
                                         </div>
                                         
                                         <!-- 3.2 มาตรการป้องกันทั้งระบบ -->
-                                        <div>
-                                            <label class="block font-bold text-gray-700 text-sm mb-1">3.2 มาตรการป้องกัน ทั้งระบบ (Systemic Preventive Measure)</label>
-                                            <textarea name="preventive_measure_systemic" rows="2" class="block w-full border-gray-300 focus:border-teal-500 focus:ring-teal-500 rounded-md shadow-sm" placeholder="ระบุวิธีป้องกันเพื่อไม่ให้ปัญหานี้เกิดซ้ำกับส่วนอื่นๆ ในระบบ...">{{ $ticket->preventive_measure_systemic }}</textarea>
+                                        <div x-data="{ 
+                                            measures: {{ empty($ticket->preventive_measure_systemic) ? json_encode([['detail' => '', 'due_date' => '']]) : json_encode($ticket->preventive_measure_systemic) }}
+                                        }">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <label class="font-bold text-gray-700 text-sm">3.2 มาตรการป้องกัน ทั้งระบบ (Systemic Preventive Measure)</label>
+                                                @if($ticket->preventive_measure !== 'done' && !str_contains(Auth::user()->role, 'manager'))
+                                                    <button type="button" @click="measures.push({detail: '', due_date: ''})" class="text-xs bg-teal-50 text-teal-600 border border-teal-200 hover:bg-teal-100 rounded px-2 py-1 transition">+ เพิ่มข้อ</button>
+                                                @endif
+                                            </div>
+                                            <template x-for="(measure, index) in measures" :key="index">
+                                                <div class="mb-3 p-3 bg-white border border-gray-200 rounded relative shadow-sm">
+                                                    <textarea x-bind:name="`preventive_measure_systemic[${index}][detail]`" x-model="measure.detail" rows="2" class="block w-full border-gray-300 focus:border-teal-500 focus:ring-teal-500 rounded-md shadow-sm mb-2 text-sm" placeholder="ระบุวิธีป้องกันเพื่อไม่ให้ปัญหานี้เกิดซ้ำกับส่วนอื่นๆ ในระบบ..."></textarea>
+                                                    <div class="flex items-center justify-between">
+                                                        <div class="flex items-center gap-2">
+                                                            <label class="text-xs text-gray-600">วันกำหนดเสร็จ:</label>
+                                                            <input type="date" x-bind:name="`preventive_measure_systemic[${index}][due_date]`" x-model="measure.due_date" class="border-gray-300 focus:border-teal-500 focus:ring-teal-500 rounded-md shadow-sm text-xs p-1">
+                                                        </div>
+                                                        @if($ticket->preventive_measure !== 'done')
+                                                            <button type="button" @click="measures.splice(index, 1)" x-show="measures.length > 1" class="text-xs text-red-500 hover:text-red-700 hover:underline">ลบออก</button>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </template>
                                         </div>
                                         
-                                        <!-- 3.3 สรุปปัญหา/สาเหตุเกิดจาก (4M1E) -->
+                                        <!-- 3.3 สรุปปัญหา/สาเหตุเกิดจาก (P-CAR) -->
                                         <div>
-                                            <label class="block font-bold text-gray-700 text-sm mb-1">3.3 สรุปปัญหา/สาเหตุเกิดจาก (4M1E Category)</label>
+                                            <label class="block font-bold text-gray-700 text-sm mb-1">3.3 สรุปปัญหา/สาเหตุเกิดจาก (P-CAR Category)</label>
                                             <div class="overflow-x-auto border border-gray-300 rounded-md" x-data="{ selectedCause: '{{ $ticket->root_cause_category }}', mainCat: '{{ explode(' - ', $ticket->root_cause_category ?? '')[0] }}' }">
                                                 <input type="hidden" name="root_cause_category" x-model="selectedCause">
                                                 <table class="w-full text-sm text-left border-collapse">
@@ -503,7 +544,9 @@
                                     </div>
                                 </div>
                             </div>
+                            </fieldset>
                             
+                            @if($ticket->preventive_measure !== 'done' && !str_contains(Auth::user()->role, 'manager'))
                             <div class="mt-6">
                                 <button type="submit" class="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -512,7 +555,9 @@
                                     บันทึกข้อมูล Task 2
                                 </button>
                             </div>
+                            @endif
                         </form>
+                    </div>
                     @endif
 
                     <!-- Action Form for Manager to Close Preventive Measure -->
@@ -936,6 +981,8 @@
                                 </div>
                             </div>
                             
+
+                            
                             @if($ticket->status === 'cancelled')
                             <!-- ยกเลิกใบงาน (Cancelled) -->
                             <div class="relative flex items-start gap-3">
@@ -957,6 +1004,84 @@
                             @endif
                         </div>
                     </div>
+                    
+                    @if($ticket->requires_preventive_measure)
+                    <!-- ไทม์ไลน์ Task 2 (Preventive Action) -->
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 mt-6 border-t-4 border-teal-500">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center border-b pb-2">
+                            <svg class="w-5 h-5 mr-2 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                            ไทม์ไลน์สถานะ Task 2
+                        </h3>
+                        
+                        <div class="relative pl-4 space-y-5">
+                            <!-- Vertical Line -->
+                            <div class="absolute top-2 bottom-2 left-5 w-0.5 bg-gray-200"></div>
+                            
+                            @php
+                                $isCancelled = $ticket->status === 'cancelled';
+                            @endphp
+
+                            <!-- Task 2: เปิด P-CAR -->
+                            <div class="relative flex items-start gap-3 {{ (!$ticket->pcar_opened_at || $isCancelled) ? 'opacity-40' : '' }}">
+                                <div class="relative flex items-center justify-center w-2.5 h-2.5 mt-1.5 z-10 ring-4 ring-white rounded-full {{ ($ticket->pcar_opened_at && !$isCancelled) ? 'bg-indigo-500' : 'bg-gray-300' }}">
+                                </div>
+                                <div class="w-full">
+                                    <p class="text-sm font-semibold text-gray-800">1. เปิด P-CAR</p>
+                                    @if($ticket->pcar_opened_at)
+                                        <p class="text-xs text-gray-500 mt-1">{{ $ticket->pcar_opened_at->format('d/m/Y H:i น.') }}</p>
+                                        @if($ticket->pcarOpenedBy)
+                                            <p class="text-xs text-indigo-600 font-medium mt-1">อนุมัติโดย: {{ $ticket->pcarOpenedBy->name }}</p>
+                                        @endif
+                                    @endif
+                                </div>
+                            </div>
+
+                            <!-- Task 2: สืบสภาพและวิเคราะห์ P-CAR -->
+                            <div class="relative flex items-start gap-3 {{ (!in_array($ticket->preventive_measure, ['in_progress', 'pending_review', 'done']) || $isCancelled) ? 'opacity-40' : '' }}">
+                                <div class="relative flex items-center justify-center w-2.5 h-2.5 mt-1.5 z-10 ring-4 ring-white rounded-full {{ (in_array($ticket->preventive_measure, ['pending_review', 'done']) && !$isCancelled) ? 'bg-teal-500' : 'bg-gray-300' }}">
+                                    @if($ticket->preventive_measure === 'in_progress')
+                                        <span class="absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75 animate-ping"></span>
+                                    @endif
+                                </div>
+                                <div class="w-full">
+                                    <p class="text-sm font-semibold text-gray-800">2. หาสาเหตุรากเหง้า และสร้างมาตรการป้องกัน</p>
+                                    @if(in_array($ticket->preventive_measure, ['pending_review', 'done']))
+                                        @if($ticket->pcar_analyzed_at)
+                                            <p class="text-xs text-gray-500 mt-1">{{ $ticket->pcar_analyzed_at->format('d/m/Y H:i น.') }}</p>
+                                        @endif
+                                        @if($ticket->pcarAnalyzedBy)
+                                            <p class="text-xs text-teal-700 font-medium mt-1">บันทึกโดย: {{ $ticket->pcarAnalyzedBy->name }}</p>
+                                        @endif
+                                    @else
+                                        <p class="text-xs text-gray-400 mt-1">รอการดำเนินการจากช่างเฉพาะทาง</p>
+                                    @endif
+                                </div>
+                            </div>
+                            
+                            <!-- Task 2: ตรวจสอบและปิดมาตรการป้องกัน -->
+                            <div class="relative flex items-start gap-3 {{ (!in_array($ticket->preventive_measure, ['pending_review', 'done']) || $isCancelled) ? 'opacity-40' : '' }}">
+                                <div class="relative flex items-center justify-center w-2.5 h-2.5 mt-1.5 z-10 ring-4 ring-white rounded-full {{ ($ticket->preventive_measure === 'done' && !$isCancelled) ? 'bg-blue-500' : 'bg-gray-300' }}">
+                                    @if($ticket->preventive_measure === 'pending_review')
+                                        <span class="absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75 animate-ping"></span>
+                                    @endif
+                                </div>
+                                <div class="w-full">
+                                    <p class="text-sm font-semibold text-gray-800">3. ตรวจสอบและปิดมาตรการป้องกัน</p>
+                                    @if($ticket->preventive_measure === 'done')
+                                        @if($ticket->pcar_closed_at)
+                                            <p class="text-xs text-gray-500 mt-1">{{ $ticket->pcar_closed_at->format('d/m/Y H:i น.') }}</p>
+                                        @endif
+                                        @if($ticket->pcarClosedBy)
+                                            <p class="text-xs text-blue-700 font-medium mt-1">ตรวจสอบโดย: {{ $ticket->pcarClosedBy->name }}</p>
+                                        @endif
+                                    @else
+                                        <p class="text-xs text-gray-400 mt-1">รอหัวหน้าตรวจสอบ</p>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
                     
                     <!-- สรุปเวลาการทำงาน (Case Summary) -->
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 mt-6 border-t-4 border-indigo-500">
