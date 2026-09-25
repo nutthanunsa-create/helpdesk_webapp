@@ -191,7 +191,7 @@
                                                     {{ $case->status_label }}
                                                 </span>
                                             </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $case->created_at->format('d/m/Y H:i') }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $case->created_at->translatedFormat('d F Y H:i') }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 <a href="{{ route('tickets.show', $case->id) }}" class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-md transition-colors">ดูรายละเอียด</a>
                                             </td>
