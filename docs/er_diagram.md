@@ -45,7 +45,7 @@ erDiagram
         json analysis_notes "ข้อมูลสาเหตุของปัญหาเบื้องต้น"
         text resolution_notes "บันทึกการแก้ไขปัญหาเฉพาะหน้า"
         boolean requires_preventive_measure "ต้องการมาตรการป้องกัน (Manager อนุมัติ)"
-        string root_cause_category "หมวดหมู่สาเหตุ (4M1E)"
+        string root_cause_category "หมวดหมู่สาเหตุ (P-CAR)"
         string why_1 "การวิเคราะห์ ทำไม ครั้งที่ 1"
         string why_2 "การวิเคราะห์ ทำไม ครั้งที่ 2"
         string why_3 "การวิเคราะห์ ทำไม ครั้งที่ 3"
