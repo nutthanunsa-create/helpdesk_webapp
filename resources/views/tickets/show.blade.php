@@ -703,22 +703,23 @@
 
                 <!-- ฝั่งขวา: Triage & Assignment Form -->
                 <div class="space-y-6">
+                    @php
+                        $canTriage = false;
+                        if (in_array(Auth::user()->role, ['helpdesk', 'manager'])) {
+                            if (in_array($ticket->status, ['pending', 'assigned'])) {
+                                $canTriage = true;
+                            } elseif (is_null($ticket->escalated_to_team) && !in_array($ticket->status, ['resolved', 'approved', 'closed', 'cancelled'])) {
+                                $canTriage = true;
+                            }
+                        }
+                    @endphp
+
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border-t-4 border-indigo-500">
                         <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
                             <svg class="w-5 h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
-                            ประเมินและจ่ายงาน (Triage)
+                            {{ $canTriage ? 'ประเมินและจ่ายงาน (Triage)' : 'ข้อมูลการมอบหมาย (Assignment)' }}
                         </h3>
 
-                        @php
-                            $canTriage = false;
-                            if (in_array(Auth::user()->role, ['helpdesk', 'manager'])) {
-                                if (in_array($ticket->status, ['pending', 'assigned'])) {
-                                    $canTriage = true;
-                                } elseif (is_null($ticket->escalated_to_team) && !in_array($ticket->status, ['resolved', 'approved', 'closed', 'cancelled'])) {
-                                    $canTriage = true;
-                                }
-                            }
-                        @endphp
                         @if($canTriage)
                             <form action="{{ route('tickets.assign', $ticket->id) }}" method="POST">
                                 @csrf
@@ -759,6 +760,22 @@
                         @else
                             <!-- View only for others -->
                             <div class="space-y-4">
+                                <div>
+                                    <span class="block text-sm text-gray-500">สถานะใบงาน (Status)</span>
+                                    <span class="block text-md font-bold text-indigo-700">
+                                        {{ match($ticket->status) {
+                                            'pending' => 'เปิดเคส / รอดำเนินการ',
+                                            'assigned' => 'รับเรื่อง / รอสืบสภาพ',
+                                            'analyzing' => 'กำลังสืบสภาพ / วิเคราะห์สาเหตุ',
+                                            'in_progress' => 'กำลังดำเนินการแก้ไข',
+                                            'resolved' => 'รอผู้แจ้งรับงาน',
+                                            'approved' => 'ผู้แจ้งรับงานแล้ว (รอหัวหน้าปิดใบงาน)',
+                                            'closed' => 'ปิดใบงาน',
+                                            'cancelled' => 'ยกเลิก',
+                                            default => 'ไม่ระบุ'
+                                        } }}
+                                    </span>
+                                </div>
                                 <div>
                                     <span class="block text-sm text-gray-500">ระดับความเร่งด่วน (Priority)</span>
                                     <span class="block text-md font-bold {{ $ticket->priority == 'urgent' ? 'text-red-600' : 'text-gray-900' }}">
