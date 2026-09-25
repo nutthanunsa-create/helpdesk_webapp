@@ -104,7 +104,7 @@
             </div>
             
             <!-- Task 1 KPI Cards Row -->
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8 auto-rows-fr">
                 <!-- Total Cases -->
                 <a href="?status=all#tickets-table" class="glass-card rounded-2xl p-4 relative overflow-hidden flex flex-col justify-between border-2 border-blue-200 hover:border-blue-300">
                     <div class="absolute right-0 top-0 w-24 h-24 bg-blue-100 rounded-full mix-blend-multiply filter blur-xl opacity-70 translate-x-8 -translate-y-8"></div>
@@ -173,21 +173,19 @@
                 <a href="?status=completed#tickets-table" class="glass-card rounded-2xl p-4 relative overflow-hidden flex flex-col justify-between border-2 border-gray-300 hover:border-gray-400">
                     <div class="absolute right-0 top-0 w-24 h-24 bg-gray-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 translate-x-8 -translate-y-8"></div>
                     <p class="text-sm font-bold text-gray-800 mb-2 leading-tight">แก้ไขเสร็จ / ปิดใบงาน</p>
-                    <div class="flex flex-col gap-2 mt-auto">
-                        <div class="flex items-end justify-between">
-                            <div class="flex items-baseline gap-2">
-                                <span class="text-4xl font-black text-gray-700 leading-none drop-shadow-sm">{{ number_format($stats['completed']) }}</span>
-                                <span class="text-sm font-bold text-gray-400 bg-white/60 px-2 rounded-md">{{ $stats['percent_completed'] }}%</span>
+                    <div class="flex items-end justify-between mt-auto">
+                        <div class="flex items-baseline flex-wrap gap-2">
+                            <span class="text-4xl font-black text-gray-700 leading-none drop-shadow-sm">{{ number_format($stats['completed']) }}</span>
+                            <span class="text-sm font-bold text-gray-400 bg-white/60 px-2 rounded-md">{{ $stats['percent_completed'] }}%</span>
+                            <div class="flex items-center gap-1 text-[11px] font-semibold ml-1">
+                                <span class="px-1.5 py-0.5 rounded bg-white/60 text-emerald-700 border border-emerald-200" title="ปิดงาน">✅ {{ number_format($stats['closed']) }}</span>
+                                <span class="px-1.5 py-0.5 rounded bg-white/60 text-red-700 border border-red-200" title="ยกเลิก">❌ {{ number_format($stats['cancelled']) }}</span>
                             </div>
-                            <!-- Check Circle Icon -->
-                            <svg class="w-7 h-7 text-emerald-500 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
                         </div>
-                        <div class="text-[11px] font-semibold flex items-center gap-2">
-                            <span class="px-1.5 py-0.5 rounded bg-white/60 text-emerald-700 border border-emerald-200">✅ ปิดงาน: {{ number_format($stats['closed']) }}</span>
-                            <span class="px-1.5 py-0.5 rounded bg-white/60 text-red-700 border border-red-200">❌ ยกเลิก: {{ number_format($stats['cancelled']) }}</span>
-                        </div>
+                        <!-- Check Circle Icon -->
+                        <svg class="w-7 h-7 text-emerald-500 opacity-80 shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
                     </div>
                 </a>
             </div>
@@ -199,7 +197,7 @@
             </div>
 
             <!-- Task 2 KPI Cards Row -->
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8 auto-rows-fr">
 
                 <!-- 1. เคสทั้งหมด (Task 2 All Cases) -->
                 <a href="?status=task2_all#tickets-table" class="glass-card rounded-2xl p-4 relative overflow-hidden flex flex-col justify-between border-2 border-indigo-200 hover:border-indigo-300">
