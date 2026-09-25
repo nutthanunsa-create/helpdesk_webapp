@@ -1,0 +1,21 @@
+<?php
+require 'vendor/autoload.php';
+$app = require_once 'bootstrap/app.php';
+$app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
+
+$user = App\Models\User::where('name', 'like', '%ณัฏฐนันท์%')->first();
+if ($user) {
+    $ticket = App\Models\HelpdeskCase::where('ticket_no', 'IT-20260924-1206')->first();
+    if ($ticket) {
+        $ticket->requires_preventive_measure = 1;
+        $ticket->preventive_measure = 'in_progress';
+        $ticket->pcar_opened_at = '2026-09-24 21:30:00';
+        $ticket->pcar_opened_by = $user->id;
+        $ticket->save();
+        echo 'TICKET_UPDATED';
+    } else {
+        echo 'TICKET_NOT_FOUND';
+    }
+} else {
+    echo 'USER_NOT_FOUND';
+}
