@@ -128,7 +128,7 @@
                             @endif
                         </div>
                         <h1 class="text-lg sm:text-xl font-bold text-white">{{ $case->title }}</h1>
-                        <p class="text-xs text-slate-400 mt-1">เปิดเคสเมื่อ {{ $case->created_at->translatedFormat('d M Y เวลา H:i น.') }}</p>
+                        <p class="text-xs text-slate-400 mt-1">เปิดเคสเมื่อ {{ $case->created_at->translatedFormat('d F Y เวลา H:i น.') }}</p>
                     </div>
 
                     <!-- SLA Info -->
@@ -138,19 +138,19 @@
                             <div class="px-4 py-3 rounded-xl bg-rose-500/20 border border-rose-400/30 text-center">
                                 <p class="text-[11px] uppercase tracking-wider text-rose-300 font-semibold">SLA เกินกำหนด</p>
                                 <p class="text-lg font-bold text-rose-300 font-numeric mt-0.5">⚠️ Overdue</p>
-                                <p class="text-[11px] text-rose-400">กำหนด {{ $case->sla_due_at->translatedFormat('d M H:i น.') }}</p>
+                                <p class="text-[11px] text-rose-400">กำหนด {{ $case->sla_due_at->translatedFormat('d F Y H:i น.') }}</p>
                             </div>
                             @else
                             <div class="px-4 py-3 rounded-xl bg-emerald-500/10 border border-emerald-400/20 text-center">
                                 <p class="text-[11px] uppercase tracking-wider text-emerald-300 font-semibold">SLA เหลือเวลา</p>
                                 <p class="text-lg font-bold text-emerald-300 font-numeric mt-0.5">{{ $case->sla_due_at->diffForHumans(['parts' => 2]) }}</p>
-                                <p class="text-[11px] text-slate-400">กำหนด {{ $case->sla_due_at->translatedFormat('d M H:i น.') }}</p>
+                                <p class="text-[11px] text-slate-400">กำหนด {{ $case->sla_due_at->translatedFormat('d F Y H:i น.') }}</p>
                             </div>
                             @endif
                         @elseif($case->resolved_at)
                         <div class="px-4 py-3 rounded-xl bg-emerald-500/10 border border-emerald-400/20 text-center">
                             <p class="text-[11px] uppercase tracking-wider text-emerald-300 font-semibold">เสร็จสิ้นเมื่อ</p>
-                            <p class="text-sm font-bold text-emerald-300 font-numeric mt-0.5">{{ $case->resolved_at->translatedFormat('d M Y') }}</p>
+                            <p class="text-sm font-bold text-emerald-300 font-numeric mt-0.5">{{ $case->resolved_at->translatedFormat('d F Y') }}</p>
                             <p class="text-[11px] text-slate-400">เวลา {{ $case->resolved_at->format('H:i') }} น.</p>
                         </div>
                         @endif
@@ -343,7 +343,7 @@
                                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
                                     <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
                                 </span>
-                                <span class="text-[11px] font-medium text-slate-500">อัปเดตล่าสุด: {{ $case->updated_at->translatedFormat('d M Y H:i น.') }}</span>
+                                <span class="text-[11px] font-medium text-slate-500">อัปเดตล่าสุด: {{ $case->updated_at->translatedFormat('d F Y H:i น.') }}</span>
                             </div>
                             @endif
                         </div>
@@ -457,17 +457,17 @@
                                             @if($hasTime)
                                                 <div class="mt-0.5 space-y-0.5">
                                                     @if($stepKey === 'pending')
-                                                        <p class="text-[11px] text-slate-500">{{ $step['time']->translatedFormat('d M Y H:i น.') }}</p>
+                                                        <p class="text-[11px] text-slate-500">{{ $step['time']->translatedFormat('d F Y H:i น.') }}</p>
                                                     @elseif($stepKey === 'closed')
-                                                        <p class="text-[11px] text-slate-500">{{ $step['time']->translatedFormat('d M Y H:i น.') }}</p>
+                                                        <p class="text-[11px] text-slate-500">{{ $step['time']->translatedFormat('d F Y H:i น.') }}</p>
                                                     @elseif($stepKey === 'cancelled')
-                                                        <p class="text-[11px] text-slate-500">{{ $step['time']->translatedFormat('d M Y H:i น.') }}</p>
+                                                        <p class="text-[11px] text-slate-500">{{ $step['time']->translatedFormat('d F Y H:i น.') }}</p>
                                                     @else
                                                         <p class="text-[11px] text-slate-500">
-                                                            {{ $step['time']->translatedFormat('d M Y H:i น.') }}
+                                                            {{ $step['time']->translatedFormat('d F Y H:i น.') }}
                                                             @if($step['end_time'])
                                                                 <span class="mx-1 text-slate-400">-</span> 
-                                                                {{ $step['end_time']->translatedFormat('d M Y H:i น.') }}
+                                                                {{ $step['end_time']->translatedFormat('d F Y H:i น.') }}
                                                             @endif
                                                         </p>
                                                     @endif
