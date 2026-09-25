@@ -57,7 +57,7 @@
                                 <div class="mt-2 text-sm text-gray-700">
                                     <p><strong>เหตุผล:</strong> {{ $ticket->cancellation_reason ?: 'ไม่ได้ระบุเหตุผล' }}</p>
                                     <p class="mt-1 text-gray-500 text-xs">
-                                        ยกเลิกเมื่อ {{ $ticket->cancelled_at ? $ticket->cancelled_at->format('d/m/Y H:i') : '-' }} 
+                                        ยกเลิกเมื่อ {{ $ticket->cancelled_at ? $ticket->cancelled_at->translatedFormat('d F Y H:i') : '-' }} 
                                         โดย {{ $ticket->cancelledBy ? $ticket->cancelledBy->name : 'Unknown' }}
                                     </p>
                                 </div>
@@ -71,7 +71,7 @@
                     <div x-data="slaCountdown('{{ $ticket->sla_due_at->toIso8601String() }}')" class="bg-indigo-50 border-l-4 border-indigo-500 p-4 rounded-md shadow-sm mb-6 flex justify-between items-center transition-colors duration-500" :class="{ 'bg-red-50 border-red-500': isOverdue }">
                         <div>
                             <h3 class="text-sm font-bold text-indigo-800" :class="{ 'text-red-800': isOverdue }">กำหนดส่งมอบงาน (SLA Due)</h3>
-                            <p class="text-xs text-indigo-600 mt-1" :class="{ 'text-red-600': isOverdue }">ภายใน: {{ $ticket->sla_due_at->format('d/m/Y H:i') }}</p>
+                            <p class="text-xs text-indigo-600 mt-1" :class="{ 'text-red-600': isOverdue }">ภายใน: {{ $ticket->sla_due_at->translatedFormat('d F Y H:i') }}</p>
                         </div>
                         <div class="text-right">
                             <span class="text-2xl font-black text-indigo-700 font-mono tracking-wider" :class="{ 'text-red-700': isOverdue }" x-text="timeLeft">--:--:--</span>
@@ -83,7 +83,7 @@
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                         <div class="mb-6 border-b pb-4">
                             <h3 class="text-2xl font-bold text-gray-900">หัวข้อปัญหา: {{ $ticket->title }}</h3>
-                            <p class="text-sm text-gray-500 mt-1">แจ้งเมื่อ: {{ $ticket->created_at->format('d/m/Y H:i') }} ({{ $ticket->created_at->diffForHumans() }})</p>
+                            <p class="text-sm text-gray-500 mt-1">แจ้งเมื่อ: {{ $ticket->created_at->translatedFormat('d F Y H:i') }} ({{ $ticket->created_at->diffForHumans() }})</p>
                         </div>
 
                         <div class="prose max-w-none mb-6">
@@ -452,7 +452,11 @@
                                                     <div class="flex items-center justify-between">
                                                         <div class="flex items-center gap-2">
                                                             <label class="text-xs text-gray-600">วันกำหนดเสร็จ:</label>
-                                                            <input type="date" x-bind:name="`preventive_measure_specific[${index}][due_date]`" x-model="measure.due_date" class="border-gray-300 focus:border-teal-500 focus:ring-teal-500 rounded-md shadow-sm text-xs p-1">
+                                                            @if($ticket->preventive_measure === 'done' || str_contains(Auth::user()->role, 'manager'))
+                                                                <span class="text-sm font-medium text-gray-800" x-text="measure.due_date ? new Intl.DateTimeFormat('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(measure.due_date)) : '-'"></span>
+                                                            @else
+                                                                <input type="date" x-bind:name="`preventive_measure_specific[${index}][due_date]`" x-model="measure.due_date" class="border-gray-300 focus:border-teal-500 focus:ring-teal-500 rounded-md shadow-sm text-xs p-1">
+                                                            @endif
                                                         </div>
                                                         @if($ticket->preventive_measure !== 'done' && !str_contains(Auth::user()->role, 'manager'))
                                                             <button type="button" @click="measures.splice(index, 1)" x-show="measures.length > 1" class="text-xs text-red-500 hover:text-red-700 hover:underline">ลบออก</button>
@@ -478,7 +482,11 @@
                                                     <div class="flex items-center justify-between">
                                                         <div class="flex items-center gap-2">
                                                             <label class="text-xs text-gray-600">วันกำหนดเสร็จ:</label>
-                                                            <input type="date" x-bind:name="`preventive_measure_systemic[${index}][due_date]`" x-model="measure.due_date" class="border-gray-300 focus:border-teal-500 focus:ring-teal-500 rounded-md shadow-sm text-xs p-1">
+                                                            @if($ticket->preventive_measure === 'done' || str_contains(Auth::user()->role, 'manager'))
+                                                                <span class="text-sm font-medium text-gray-800" x-text="measure.due_date ? new Intl.DateTimeFormat('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(measure.due_date)) : '-'"></span>
+                                                            @else
+                                                                <input type="date" x-bind:name="`preventive_measure_systemic[${index}][due_date]`" x-model="measure.due_date" class="border-gray-300 focus:border-teal-500 focus:ring-teal-500 rounded-md shadow-sm text-xs p-1">
+                                                            @endif
                                                         </div>
                                                         @if($ticket->preventive_measure !== 'done')
                                                             <button type="button" @click="measures.splice(index, 1)" x-show="measures.length > 1" class="text-xs text-red-500 hover:text-red-700 hover:underline">ลบออก</button>
@@ -701,7 +709,7 @@
                                     <div class="{{ $comment->user_id === Auth::id() ? 'bg-indigo-50 border-indigo-100 text-indigo-900' : 'bg-gray-50 border-gray-200 text-gray-800' }} border p-3 rounded-lg max-w-[80%]">
                                         <div class="flex justify-between items-center mb-1 gap-4">
                                             <span class="font-bold text-xs">{{ $comment->user->name }} ({{ $comment->user->role }})</span>
-                                            <span class="text-[10px] text-gray-500">{{ $comment->created_at->format('d/m/Y H:i') }}</span>
+                                            <span class="text-[10px] text-gray-500">{{ $comment->created_at->translatedFormat('d F Y H:i') }}</span>
                                         </div>
                                         <p class="text-sm whitespace-pre-wrap">{{ $comment->message }}</p>
                                         @if($comment->attachment_path)
@@ -863,7 +871,7 @@
                                 <div>
                                     <p class="text-sm font-semibold text-gray-800">เปิดเคส / รอดำเนินการ</p>
                                     @if(Auth::user()->role !== 'user')
-                                        <p class="text-xs text-gray-500">{{ $ticket->created_at->format('d/m/Y H:i น.') }}</p>
+                                        <p class="text-xs text-gray-500">{{ $ticket->created_at->translatedFormat('d F Y H:i น.') }}</p>
                                         <p class="text-xs text-indigo-600 font-medium mt-1">โดย: {{ $ticket->requester_name }}</p>
                                     @endif
                                 </div>
@@ -883,12 +891,12 @@
                                             <div class="mt-1.5 bg-gray-50 rounded p-2 text-xs border border-gray-200 inline-block min-w-[200px]">
                                                 <div class="flex justify-between">
                                                     <span class="text-gray-500">เริ่ม:</span>
-                                                    <span class="text-gray-700 font-medium">{{ $ticket->analyzing_at->format('d/m/Y H:i น.') }}</span>
+                                                    <span class="text-gray-700 font-medium">{{ $ticket->analyzing_at->translatedFormat('d F Y H:i น.') }}</span>
                                                 </div>
                                                 @if($ticket->in_progress_at)
                                                 <div class="flex justify-between mt-1">
                                                     <span class="text-gray-500">จบ:</span>
-                                                    <span class="text-gray-700 font-medium">{{ $ticket->in_progress_at->format('d/m/Y H:i น.') }}</span>
+                                                    <span class="text-gray-700 font-medium">{{ $ticket->in_progress_at->translatedFormat('d F Y H:i น.') }}</span>
                                                 </div>
                                                 @endif
                                             </div>
@@ -916,12 +924,12 @@
                                             <div class="mt-1.5 bg-gray-50 rounded p-2 text-xs border border-gray-200 inline-block min-w-[200px]">
                                                 <div class="flex justify-between">
                                                     <span class="text-gray-500">เริ่ม:</span>
-                                                    <span class="text-gray-700 font-medium">{{ $ticket->in_progress_at->format('d/m/Y H:i น.') }}</span>
+                                                    <span class="text-gray-700 font-medium">{{ $ticket->in_progress_at->translatedFormat('d F Y H:i น.') }}</span>
                                                 </div>
                                                 @if($ticket->resolved_at)
                                                 <div class="flex justify-between mt-1 pt-1 border-t border-gray-200">
                                                     <span class="text-emerald-600 font-semibold">ส่งมอบเมื่อ:</span>
-                                                    <span class="text-emerald-700 font-bold">{{ $ticket->resolved_at->format('d/m/Y H:i น.') }}</span>
+                                                    <span class="text-emerald-700 font-bold">{{ $ticket->resolved_at->translatedFormat('d F Y H:i น.') }}</span>
                                                 </div>
                                                 @endif
                                             </div>
@@ -948,7 +956,7 @@
                                     <p class="text-sm font-semibold text-gray-800">{{ $ticket->approved_at ? 'ผู้แจ้งรับทราบการแก้ไข' : 'รอผู้แจ้งรับงาน' }}</p>
                                     @if($ticket->approved_at)
                                         @if(Auth::user()->role !== 'user')
-                                            <p class="text-xs text-gray-500 mt-1">{{ $ticket->approved_at->format('d/m/Y H:i น.') }}</p>
+                                            <p class="text-xs text-gray-500 mt-1">{{ $ticket->approved_at->translatedFormat('d F Y H:i น.') }}</p>
                                             @if($ticket->approvedBy)
                                                 <p class="text-xs text-emerald-600 font-medium mt-1">ผู้รับงาน: {{ $ticket->approvedBy->name }}</p>
                                             @endif
@@ -970,7 +978,7 @@
                                     <p class="text-sm font-semibold text-gray-800">{{ $ticket->closed_at ? 'ปิดใบงาน' : 'รอปิดใบงาน' }}</p>
                                     @if($ticket->closed_at)
                                         @if(Auth::user()->role !== 'user')
-                                            <p class="text-xs text-gray-500">{{ $ticket->closed_at->format('d/m/Y H:i น.') }}</p>
+                                            <p class="text-xs text-gray-500">{{ $ticket->closed_at->translatedFormat('d F Y H:i น.') }}</p>
                                             @if($ticket->closedBy)
                                                 <p class="text-xs text-gray-800 font-medium mt-1">ปิดโดย: {{ $ticket->closedBy->name }}</p>
                                             @endif
@@ -993,7 +1001,7 @@
                                     <p class="text-sm font-semibold text-red-600">ยกเลิกใบงานแล้ว</p>
                                     @if($ticket->cancelled_at)
                                         @if(Auth::user()->role !== 'user')
-                                            <p class="text-xs text-gray-500">{{ $ticket->cancelled_at->format('d/m/Y H:i น.') }}</p>
+                                            <p class="text-xs text-gray-500">{{ $ticket->cancelled_at->translatedFormat('d F Y H:i น.') }}</p>
                                             @if($ticket->cancelledBy)
                                                 <p class="text-xs text-red-600 font-medium mt-1">ยกเลิกโดย: {{ $ticket->cancelledBy->name }}</p>
                                             @endif
@@ -1028,7 +1036,7 @@
                                 <div class="w-full">
                                     <p class="text-sm font-semibold text-gray-800">1. เปิด P-CAR</p>
                                     @if($ticket->pcar_opened_at)
-                                        <p class="text-xs text-gray-500 mt-1">{{ $ticket->pcar_opened_at->format('d/m/Y H:i น.') }}</p>
+                                        <p class="text-xs text-gray-500 mt-1">{{ $ticket->pcar_opened_at->translatedFormat('d F Y H:i น.') }}</p>
                                         @if($ticket->pcarOpenedBy)
                                             <p class="text-xs text-indigo-600 font-medium mt-1">อนุมัติโดย: {{ $ticket->pcarOpenedBy->name }}</p>
                                         @endif
@@ -1047,7 +1055,7 @@
                                     <p class="text-sm font-semibold text-gray-800">2. หาสาเหตุรากเหง้า และสร้างมาตรการป้องกัน</p>
                                     @if(in_array($ticket->preventive_measure, ['pending_review', 'done']))
                                         @if($ticket->pcar_analyzed_at)
-                                            <p class="text-xs text-gray-500 mt-1">{{ $ticket->pcar_analyzed_at->format('d/m/Y H:i น.') }}</p>
+                                            <p class="text-xs text-gray-500 mt-1">{{ $ticket->pcar_analyzed_at->translatedFormat('d F Y H:i น.') }}</p>
                                         @endif
                                         @if($ticket->pcarAnalyzedBy)
                                             <p class="text-xs text-teal-700 font-medium mt-1">บันทึกโดย: {{ $ticket->pcarAnalyzedBy->name }}</p>
@@ -1069,7 +1077,7 @@
                                     <p class="text-sm font-semibold text-gray-800">3. ตรวจสอบและปิดมาตรการป้องกัน</p>
                                     @if($ticket->preventive_measure === 'done')
                                         @if($ticket->pcar_closed_at)
-                                            <p class="text-xs text-gray-500 mt-1">{{ $ticket->pcar_closed_at->format('d/m/Y H:i น.') }}</p>
+                                            <p class="text-xs text-gray-500 mt-1">{{ $ticket->pcar_closed_at->translatedFormat('d F Y H:i น.') }}</p>
                                         @endif
                                         @if($ticket->pcarClosedBy)
                                             <p class="text-xs text-blue-700 font-medium mt-1">ตรวจสอบโดย: {{ $ticket->pcarClosedBy->name }}</p>
@@ -1093,7 +1101,7 @@
                         <div class="space-y-4 text-sm">
                             <div class="flex justify-between items-center pb-2 border-b border-gray-100">
                                 <span class="text-gray-500">แจ้งเมื่อ:</span>
-                                <span class="font-semibold text-gray-800">{{ $ticket->created_at->format('d/m/Y H:i น.') }}</span>
+                                <span class="font-semibold text-gray-800">{{ $ticket->created_at->translatedFormat('d F Y H:i น.') }}</span>
                             </div>
                             
                             @if(in_array($ticket->status, ['closed', 'cancelled']))
@@ -1109,7 +1117,7 @@
                                 @endphp
                                 <div class="flex justify-between items-center pb-2 border-b border-gray-100">
                                     <span class="text-gray-500">{{ $ticket->status === 'closed' ? 'ปิดใบงานเมื่อ:' : 'ยกเลิกใบงานเมื่อ:' }}</span>
-                                    <span class="font-semibold text-gray-800">{{ $end_carbon->format('d/m/Y H:i น.') }}</span>
+                                    <span class="font-semibold text-gray-800">{{ $end_carbon->translatedFormat('d F Y H:i น.') }}</span>
                                 </div>
                                 @if(Auth::user()->role !== 'user')
                                 <div class="flex justify-between items-center bg-emerald-50 p-3 rounded-md border border-emerald-100 mt-2">
