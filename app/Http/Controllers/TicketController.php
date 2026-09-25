@@ -296,6 +296,8 @@ class TicketController extends Controller
             if ($request->requires_preventive_measure == 1 && $request->filled('escalated_to_team')) {
                 $updateData['escalated_to_team'] = $request->escalated_to_team;
                 $updateData['preventive_measure'] = 'in_progress';
+                $updateData['pcar_opened_at'] = now();
+                $updateData['pcar_opened_by'] = Auth::id();
             } elseif ($request->requires_preventive_measure == 0) {
                 $updateData['preventive_measure'] = null;
             }
@@ -312,14 +314,20 @@ class TicketController extends Controller
                 'root_cause_detail' => $request->root_cause_detail,
                 'resolution_notes' => $request->resolution_notes,
                 'preventive_measure_specific' => $request->preventive_measure_specific,
+                'preventive_measure_specific_due_date' => $request->preventive_measure_specific_due_date,
                 'preventive_measure_systemic' => $request->preventive_measure_systemic,
+                'preventive_measure_systemic_due_date' => $request->preventive_measure_systemic_due_date,
                 'preventive_measure' => 'pending_review',
+                'pcar_analyzed_at' => now(),
+                'pcar_analyzed_by' => Auth::id(),
             ]);
             
             return redirect()->route('tickets.show', $id)->with('success', 'บันทึกข้อมูล Task 2 แล้ว รอหัวหน้าตรวจสอบและปิดมาตรการ');
         } elseif ($request->action === 'close_preventive_measure') {
             $ticket->update([
                 'preventive_measure' => 'done',
+                'pcar_closed_at' => now(),
+                'pcar_closed_by' => Auth::id(),
             ]);
             
             return redirect()->route('tickets.show', $id)->with('success', 'ปิดมาตรการป้องกันเรียบร้อยแล้ว');
